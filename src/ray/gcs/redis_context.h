@@ -41,7 +41,7 @@ using rpc::TablePubsub;
 /// A simple reply wrapper for redis reply.
 class CallbackReply {
  public:
-  explicit CallbackReply(redisReply *redis_reply);
+  explicit CallbackReply(redisReply *redis_reply, int64_t callback_index = -1);
 
   /// Whether this reply is `nil` type reply.
   bool IsNil() const;
@@ -102,6 +102,8 @@ class CallbackReply {
 
   /// Represent the reply of SCanArray, means the next scan cursor for scan request.
   size_t next_scan_cursor_reply_{0};
+
+  int64_t callback_index_;
 };
 
 /// Every callback should take in a vector of the results from the Redis
@@ -139,6 +141,7 @@ class RedisCallbackManager {
     bool is_subscription_;
     int64_t start_time_;
     instrumented_io_context *io_service_;
+    std::string command = "unknown";
   };
 
   /// Allocate an index at which we can add a callback later on.
@@ -146,7 +149,7 @@ class RedisCallbackManager {
 
   /// Add a callback at an optionally specified index.
   int64_t AddCallback(const RedisCallback &function, bool is_subscription,
-                      instrumented_io_context &io_service, int64_t callback_index = -1);
+                      instrumented_io_context &io_service, int64_t callback_index = -1, std::string command = "unknown");
 
   /// Remove a callback.
   void RemoveCallback(int64_t callback_index);
