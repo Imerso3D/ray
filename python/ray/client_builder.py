@@ -142,7 +142,8 @@ class ClientBuilder:
             _credentials=self._credentials,
             ray_init_kwargs=self._remote_init_kwargs)
         dashboard_url = ray.get(
-            ray.remote(ray.worker.get_dashboard_url).remote())
+            ray.remote(memory=200 * 1024**2)(
+                ray.worker.get_dashboard_url).remote())
         cxt = ClientContext(
             dashboard_url=dashboard_url,
             python_version=client_info_dict["python_version"],
